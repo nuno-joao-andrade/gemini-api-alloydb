@@ -1,0 +1,31 @@
+{
+  "name": "gemini-alloydb",
+  "version": "1.0.0",
+  "description": "### 📝 Overview Use Gemini-CLI to generate AlloyDB schema (SQL) and massive amounts of synthetic, realistic data, then execute the scripts.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:local": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuno-joao-andrade/gemini-alloydb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nuno-joao-andrade/gemini-alloydb/issues"
+  },
+  "homepage": "https://github.com/nuno-joao-andrade/gemini-alloydb#readme",
+  "dependencies": {
+    "@google-cloud/pubsub": "^5.2.0",
+    "@google/generative-ai": "^0.24.1",
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
