@@ -1,0 +1,23 @@
+# Node.js & Dependencies
+/node_modules
+/dist
+/build
+npm-debug.log
+.npm/
+
+# Environment
+.env
+
+# Testing Scripts (to avoid committing large test results)
+/testing_scripts/results/
+
+# Editor/OS Files
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# --------------------------
+# Setup Script (as requested)
+setup_workshop_repo_remote.sh
+
+create_fresh_repo.sh
