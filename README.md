@@ -99,7 +99,7 @@ We use the **Gemini-CLI** to quickly scaffold the Node.js API structure and conn
 | Step | Instruction | Description | Gemini-CLI Prompt / Action |
 | :--- | :--- | :--- | :--- |
 | **2.1** | **Project Setup & Structure** | Initialize the project, create folders, and scaffold the basic Express server and CRUD APIs. | **Prompt:** `follow these steps: 1) do npm init. 2) create folder structure: 'database_scripts', 'apis', 'lib'. 3) move db scripts to 'database_scripts'. 4) create a Node.js Express server with basic CRUD API endpoints for all tables structured in the SQL script. Place API logic in the 'apis' folder.` |
-| **2.2** | **Configure Local Environment** | Generate `.gitignore` and the connection `.env` file, and update `package.json`. | **Prompt:** `1) Create a .gitignore for this project. 2) Create a .env file with these values: host: localhost, port: 5433, user: items, password: !items123, database: items. 3) Create a 'start:local' script in package.json to load the .env file and start the server.` |
+| **2.2** | **Configure Local Environment** | Generate `.gitignore` and the connection `.env` file, and update `package.json`. | **Prompt:** `1) Create a .gitignore for this project. 2) Create a .env file with these values: host: localhost, port: 5433, user: items, password: !items123, database: items, don't forget to prefix the env vars should start with DB_ 3) Create a 'start:local' script in package.json to load the .env file and start the server.` |
 | **2.3** | **Connect to AlloyDB** | Update all generated API files to establish and use a connection pool to AlloyDB using the `.env` variables. | **Action:** Implement the PostgreSQL driver (e.g., `pg`) connection logic in the `lib` folder and integrate it into the `apis`. |
 
 -----
