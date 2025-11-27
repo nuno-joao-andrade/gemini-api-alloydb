@@ -73,8 +73,7 @@ This module ensures all necessary tools and credentials are in place before star
 | **0.2** | **AlloyDB Proxy** | Download and set up the AlloyDB Auth Proxy for local connectivity. | [AlloyDB Proxy Docs](https://docs.cloud.google.com/alloydb/docs/auth-proxy/connect) |
 | **0.3** | **Gemini API Key** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) |
 | **0.4** | **Set Environment Variables** | Define required credentials and project settings in your terminal session. | `export GOOGLE_API_KEY=...` <br> `export GOOGLE_GENAI_USE_VERTEXAI="true"` <br> `export GOOGLE_CLOUD_PROJECT="..."` |
-| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | **Password:** `!devfest-alloy123` |
-
+| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | **Password:** `!devfest-alloy123` and execute the grant_priviledges.sql in the AlloyDB studio with postgres user|
 
 
 -----
