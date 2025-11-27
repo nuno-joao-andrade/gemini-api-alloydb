@@ -71,7 +71,7 @@ This module ensures all necessary tools and credentials are in place before star
 | :--- | :--- | :--- | :--- |
 | **0.1** | **System Requirements Check** | Ensure **Node.js ($\ge$ 22)**, **npm ($\ge$ 10)**, and the **gcloud CLI** are installed. | **Action:** Cluster Password: `!devfest-alloy123`; Database Name: `items`; Database User: `items` / `!items123` |
 | **0.2** | **AlloyDB Proxy** | Download and set up the AlloyDB Auth Proxy for local connectivity. | [AlloyDB Proxy Docs](https://docs.cloud.google.com/alloydb/docs/auth-proxy/connect) |
-| **0.3** | **Gemini API Key** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) |
+| **0.3** | **Gemini API Key** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) [API Reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/sdks/overview#googlegenaisdk_quickstart-nodejs_genai_sdk) |
 | **0.4** | **Set Environment Variables** | Define required credentials and project settings in your terminal session. | `export GOOGLE_API_KEY=...` <br> `export GOOGLE_GENAI_USE_VERTEXAI="true"` <br> `export GOOGLE_CLOUD_PROJECT="..."` |
 | **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | **Password:** `!devfest-alloy123` and execute the grant_privileges.sql in the AlloyDB studio with postgres user|
 
@@ -124,12 +124,12 @@ This is the core value-add module, integrating the Gemini API for advanced NLP.
 
 | Step | Instruction | Description | Gemini-CLI Prompt / Action |
 | :--- | :--- | :--- | :--- |
-| **4.1** | **Simple Analytics Endpoint** | Create a traditional database query for simple aggregation. | **Prompt:** `In the ratings API, create a special endpoint: '/api/items/:item_id/average-rating' that returns the calculated average rating for a particular item ID using pure SQL aggregation.` |
-| **4.2** | **AI-Powered Summarization** | Use the Gemini API to analyze comments and identify pain points. | **Prompt:** `Create a new endpoint: '/api/items/:item_id/top-complaints'. This endpoint must fetch all comments for the given item ID from the AlloyDB 'ratings' table. Then, it must use the Gemini API to analyze these comments and return a summary of the top 3 most frequent complaints or recurring issues found in the text. ` |
+| **4.1** | **Simple Analytics Endpoint** | Create a traditional database query for simple aggregation. | **Prompt:** `In the ratings API, create a special endpoint: '/api/items/:item_id/average-rating' that returns the calculated average rating for a particular item ID using pure SQL aggregation. ` |
+| **4.2** | **AI-Powered Summarization** | Use the Gemini API to analyze comments and identify pain points. | **Prompt:** `Create a new endpoint: '/api/items/:item_id/top-complaints'. This endpoint must fetch all comments for the given item ID from the AlloyDB 'ratings' table. Then, it must use the Gemini API to analyze these comments and return a summary of the top 3 most frequent complaints or recurring issues found in the text. use @google/genai package with this constructor: new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY}); ` |
 | **4.3** | **Test AI Endpoint** | Test the new endpoint and observe the AI-generated insights. | **Action:** Run a `curl` command against the new AI endpoint and analyze the output, noting the speed of insight generation. |
 | **4.4** | **Test ALL Endpoints** | Creation of a global test script | **Prompt:** create a script that call curl with to test all the endpoints. |
 | **4.5** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:**generate a open api interface for all the endpoints |
-| **4.6** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:** in the ratings api methods put and post, add a functionality to push a message to a pub/sub topic called "negative-ratings", if a comment is negative, in the payload include a suggested a reply to the user. |
+| **4.6** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:** in the ratings api methods put and post, add a functionality to push a message to a pub/sub topic called "negative-ratings", if a comment is negative, in the payload include a suggested a reply to the user. use @google/genai package use @google/genai package with this constructor: new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY}); |
 -----
 
 ### **Module 5: Deployment to Cloud Run (optional)** 🚀
