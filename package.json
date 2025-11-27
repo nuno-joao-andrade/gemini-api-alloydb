@@ -20,7 +20,7 @@
   "homepage": "https://github.com/nuno-joao-andrade/gemini-alloydb#readme",
   "dependencies": {
     "@google-cloud/pubsub": "^5.2.0",
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.30.0",
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

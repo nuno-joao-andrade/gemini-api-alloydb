@@ -1,20 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../lib/db');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 const { PubSub } = require('@google-cloud/pubsub');
 
 // Initialize AI and PubSub
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-2.5-flash",
-  generationConfig: { responseMimeType: "application/json" } 
-});
+const client = new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY});
+
 const pubSubClient = new PubSub({ projectId: process.env.GOOGLE_CLOUD_PROJECT });
 const TOPIC_NAME = process.env.PUBSUB_TOPIC_NAME || 'negative-ratings';
 
 // Helper function to analyze sentiment and publish if negative
 async function analyzeAndPublish(rating) {
+  if (!process.env.GOOGLE_API_KEY) {
+    console.error('GOOGLE_API_KEY is not set. Cannot perform AI analysis.');
+    return;
+  }
   try {
     // 1. Analyze with Gemini
     const prompt = `
@@ -35,9 +36,12 @@ async function analyzeAndPublish(rating) {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const analysis = JSON.parse(response.text());
+    const aiResult = await genAI.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" } 
+    });
+    const analysis = JSON.parse(aiResult.response.candidates[0].content.parts[0].text);
 
     // 2. Publish to Pub/Sub if negative
     if (analysis.is_negative) {

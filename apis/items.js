@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../lib/db');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 
 // Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const client = new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY});
 
 // GET all items
 router.get('/', async (req, res) => {
@@ -23,8 +22,12 @@ router.get('/', async (req, res) => {
 // GET top complaints for an item using Gemini AI
 router.get('/:id/top-complaints', async (req, res) => {
   const { id } = req.params;
+
+  
+
   try {
-    // 1. Fetch comments
+    // 1. Fetch comments from AlloyDB
+    // We join Ratings with Order_Items to filter by item_id
     const result = await pool.query(
       `SELECT r.comments
        FROM Ratings r
@@ -32,33 +35,43 @@ router.get('/:id/top-complaints', async (req, res) => {
        WHERE oi.item_id = $1
        AND r.comments IS NOT NULL
        AND length(r.comments) > 0
-       LIMIT 50`, // Limit to 50 to avoid exceeding token limits for this demo
+       LIMIT 100`, // Increased limit for better analysis context
       [id]
     );
 
     if (result.rows.length === 0) {
-      return res.json({ message: 'No comments found for this item.' });
+      return res.json({ message: 'No comments found for this item to analyze.' });
     }
 
-    const comments = result.rows.map(row => row.comments).join('\n- ');
+    // Concatenate comments for the prompt
+    const comments = result.rows.map(row => `- ${row.comments}`).join('\n');
 
-    // 2. Analyze with Gemini
+    // 2. Analyze with Gemini API
+    // We ask for a structured summary of the top 3 complaints
     const prompt = `
-      Analyze the following customer reviews for a product and identify the top 3 most frequent complaints or recurring issues.
-      Provide a summary for each complaint.
+      You are an expert product analyst. Analyze the following customer reviews for a product.
+      Identify the top 3 most frequent complaints or recurring negative themes.
       
       Reviews:
-      - ${comments}
+      ${comments}
       
-      Output Format:
-      1. [Issue Title]: [Brief Summary]
-      2. [Issue Title]: [Brief Summary]
-      3. [Issue Title]: [Brief Summary]
+      Please provide the output in this exact format:
+      1. **[Issue Title]**: [Concise summary of the issue]
+      2. **[Issue Title]**: [Concise summary of the issue]
+      3. **[Issue Title]**: [Concise summary of the issue]
     `;
 
-    const aiResult = await model.generateContent(prompt);
-    const response = await aiResult.response;
-    const text = response.text();
+    // Check if API key is present for GoogleGenAI
+    if (!process.env.GOOGLE_API_KEY) {
+      return res.status(500).json({ error: 'GOOGLE_API_KEY is not set in environment variables.' });
+    }
+
+    const aiResult = await client.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+    });
+    console.log()
+    const text = aiResult.text;
 
     res.json({
       item_id: id,
@@ -66,8 +79,13 @@ router.get('/:id/top-complaints', async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    console.error('Error in /top-complaints:', err);
+    // Check if it's an API related error
+    if (err.message && err.message.includes('API key')) {
+         res.status(500).json({ error: 'Invalid or missing Gemini API Key.' });
+    } else {
+         res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    }
   }
 });
 
