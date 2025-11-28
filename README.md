@@ -21,11 +21,11 @@ You will create a comprehensive back-end service that automates the processing o
 | Technology | Role in the Workshop | Documentation Link |
 | :--- | :--- | :--- |
 | **AlloyDB for PostgreSQL** | The high-performance, fully managed database for storing and querying product data, user ratings, and the resulting AI analysis/categorizations. | [AlloyDB Documentation](https://cloud.google.com/alloydb/docs) |
-| **Node.js** | The runtime environment for building the fast, scalable, and event-driven API back-end. | [Node.js Documentation](https://nodejs.org/en/docs) |
+| **Node.js** | The runtime environment for building the fast, scalable, and event-driven API back-end. | [Node.js](https://nodejs.org/en) <br/> [Node.js Ref. Docs](https://nodejs.org/en/docs) |
 | **Cloud Run** | The serverless compute platform used to deploy the Node.js API, providing automatic scaling and a highly efficient operational environment. | [Cloud Run Documentation](https://cloud.google.com/run/docs) |
 | **Gemini API / Vertex AI** | The engine for advanced machine learning tasks, handling all the heavy lifting for sentiment analysis, comment categorization, and suggested reply generation. | [Gemini API Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/overview) |
 | **Gemini-CLI (Command Line Interface)** | **We will leverage the Gemini-CLI to accelerate development by generating boilerplate code (Node.js), database schema scripts (SQL for AlloyDB), and realistic-looking fake data.** | [Gemini API Developer Site](https://ai.google.dev/docs) |
-| **hey or ab (optional for performance testing only)** | **hey is a tiny program that sends some load to a web application. / apache benchmark ** | [hey Site](https://github.com/rakyll/hey) [ab](https://httpd.apache.org/docs/2.4/programs/ab.html)|
+| **hey or ab (optional for performance testing only)** | **hey is a tiny program that sends some load to a web application. / apache benchmark ** | [hey Site](https://github.com/rakyll/hey) / [ab Site](https://httpd.apache.org/docs/2.4/programs/ab.html)|
 
 ---
 
@@ -62,6 +62,16 @@ Before you begin, you need to authenticate with Google Cloud. Run the following 
     ```
     *Replace `[YOUR_PROJECT_ID]` with your actual Google Cloud project ID.*
 
+
+4.  **Download alloydb proxy:**
+    ```bash
+        wget https://storage.googleapis.com/alloydb-auth-proxy/v1.13.6/alloydb-auth-proxy.linux.amd64 -O alloydb-auth-proxy
+    ```
+    ```bash
+        chmod +x alloydb-auth-proxy
+    ```
+
+
 ---
 ### **Module 0: Setup and Environment Preparation**  🛠️  
 
@@ -69,12 +79,11 @@ This module ensures all necessary tools and credentials are in place before star
 
 | Step | Instruction | Details | Resources |
 | :--- | :--- | :--- | :--- |
-| **0.1** | **System Requirements Check** | Ensure **Node.js ($\ge$ 22)**, **npm ($\ge$ 10)**, and the **gcloud CLI** are installed. | **Action:** Cluster Password: `!devfest-alloy123`; Database Name: `items`; Database User: `items` / `!items123` |
+| **0.1** | **System Requirements Check** | Ensure **Node.js ($\ge$ 22)**, **npm ($\ge$ 10)**, and the **gcloud CLI**, **gemini-cli** , **alloydb-auth-proxy** are installed. | **Action:** Install all dependencies |
 | **0.2** | **AlloyDB Proxy** | Download and set up the AlloyDB Auth Proxy for local connectivity. | [AlloyDB Proxy Docs](https://docs.cloud.google.com/alloydb/docs/auth-proxy/connect) |
-| **0.3** | **Gemini API Key** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) [API Reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/sdks/overview#googlegenaisdk_quickstart-nodejs_genai_sdk) |
+| **0.3** | **Gemini API Key / Vertex AI** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) [API Reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/sdks/overview#googlegenaisdk_quickstart-nodejs_genai_sdk) |
 | **0.4** | **Set Environment Variables** | Define required credentials and project settings in your terminal session. | `export GOOGLE_API_KEY=...` <br> `export GOOGLE_GENAI_USE_VERTEXAI="true"` <br> `export GOOGLE_CLOUD_PROJECT="..."` |
-| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | **Password:** `!devfest-alloy123` and execute the grant_privileges.sql in the AlloyDB studio with postgres user|
-
+| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | Go to the [https://console.cloud.google.com/] (https://console.cloud.google.com/), search for alloydb and create the instance cluster. <br/>1) **Instance Specs** <br/> **Password:** `!devfest-alloy123` <br/> **VPC :** Use the default, <br/> **Allow external IP**: Without any network allowed. (In the dev environment only, to allow connection via proxy to test the code.) <br/> **Check SSL configuration (only important for step 5)** <br/> 2) **Create Database + User:** Database Name: `items`; Database User: `items` / `!items123` and execute the grant_privileges.sql in the AlloyDB studio with postgres user, <br/>  |
 
 -----
 
@@ -87,7 +96,7 @@ We use the **Gemini-CLI** to instantly generate the SQL schema and realistic syn
 | **1.1** | **Generate DB Structure (SQL)** | Use the CLI to create the SQL script for all sequences and tables. | **Prompt:** `create a script to create the following elements in alloydb: 1) Sequences: items, orders, order_items, ratings, users. 2) Tables: Items (item_id, item_description, item_value), orders (order_id, create_date, status, user_id), order_items (order_items_id, order_id, item_id, quantity), ratings (rating_id, value, comments, user_id, order_items_id), users (user_id, name, email, status).` |
 | **1.1a** | **Launch AlloyDB Auth Proxy** | Start the Auth Proxy to connect to your AlloyDB instance locally. | **Action:** `./alloydb-auth-proxy -p 5433 INSTANCE_CONNECTION_NAME` (replace with your instance name) |
 | **1.2** | **Execute Schema Script** | Run the generated `setup_alloydb.sql` script on your AlloyDB instance. | **Action:** `psql -h 127.0.0.1 -p 5433 -d items -U items -f setup_alloydb.sql` |
-| **1.3** | **Generate Synthetic Data** | Generate a massive amount of correlated data, focusing on realistic text for the `comments` column. | **Prompt:** `generate a populate script to insert correlated sample data for all tables with the following volumes: items - 100k, users - 100k, orders - 1M, order_items - 2M, ratings - 200k. CRUCIALLY, for the ratings 'comments' column, insert meaningful, realistic product review text (e.g., bug reports, feature requests, praise).` |
+| **1.3** | **Generate Synthetic Data** | Generate a massive amount of correlated data, focusing on realistic text for the `comments` column. | **Prompt:** **ADJUST TO THE CAPACITY OF THE INSTANCE CREATED** `generate a populate script to insert correlated sample data for all tables with the following volumes: items - 100k, users - 100k, orders - 1M, order_items - 2M, ratings - 200k. CRUCIALLY, for the ratings 'comments' column, insert meaningful, realistic product review text (e.g., bug reports, feature requests, praise).` |
 | **1.4** | **Execute Data Script** | Run the generated data insertion script to populate the database for testing. | **Action:** Execute the large data insertion script. `psql -h 127.0.0.1 -p 5433 -d items -U items -f populate_alloydb.sql` |
 
 -----
@@ -110,7 +119,7 @@ We refine data access and introduce performance testing.
 
 | Step | Instruction | Description | Gemini-CLI Prompt / Action |
 | :--- | :--- | :--- | :--- |
-| **3.1** | **Refine Basic Endpoints (Limit)** | Update all GET APIs to support a `limit` parameter to restrict results. | **Action:** Modify the API code to accept `?limit=` and apply `LIMIT $1` to the SQL. |
+| **3.1** | **Refine Basic Endpoints (Limit)** | Update all GET APIs to support a `limit` parameter to restrict results. | **Prompt:** Modify the API code to accept `?limit=` and apply `LIMIT $1` to the SQL. |
 | **3.2** | **Refine Basic Endpoints (Pagination)** | Enhance all GET APIs to support full pagination (`limit` and `offset`). | **Prompt:** `go ahead and change all the get apis to support both the 'limit' and 'offset' parameters for full pagination capabilities.` |
 | **3.3** | **Create Complex APIs** | Build an API combining multiple entities (relational queries). | **Prompt:** `create a complex API combining entities, specifically an endpoint to return a user's entire order history, detailing all purchased items per order.` |
 | **3.4** | **Setup Hey Test Scripts** | Create a folder and a script to load-test the API performance. | **Prompt:** Create `testing_scripts/test_ratings_performance.sh` to run `hey -n 5000 -c 50` against the `/api/ratings?limit=10` endpoint, accepting the host as an optional parameter. |
@@ -141,7 +150,8 @@ This module focuses on preparing the application for deployment and deploying it
 | **5.1** | **Containerize Application** | Create a Dockerfile to package the Node.js application. | **Prompt:** `create a dockerfile for the nodejs application` |
 | **5.2** | **Build and Push Docker Image** | Build the Docker image and push it to Google Container Registry (GCR) or Artifact Registry. | **Action:** `gcloud builds submit --tag gcr.io/[PROJECT-ID]/alloydb-api` |
 | **5.3** | **Deploy to Cloud Run** | Deploy the containerized application to Google Cloud Run. | **Action:** `gcloud run deploy alloydb-api --image gcr.io/[PROJECT-ID]/alloydb-api --platform managed --region [REGION] --allow-unauthenticated` |
-| **5.4** | **Configure Cloud Run to AlloyDB** | Connect the Cloud Run service to AlloyDB instance via a Serverless VPC Access connector. | **Action:** Configure the AlloyDB connection string with the private IP and ensure Serverless VPC Access is set up for Cloud Run. |
+| **5.4** | **Configure Cloud Run to AlloyDB** | Connect the Cloud Run service to AlloyDB instance via a Serverless VPC Access connector. | **Action:** Configure the AlloyDB connection string with the private IP and ensure Serverless VPC Access is set up for Cloud Run.  Check the SSL true in the connection to the AlloyDB |
+
 | **5.5** | **Test Deployed API** | Verify the deployed API endpoints are working correctly. | **Action:** Use `curl` or the `test_all_apis.sh` script against the Cloud Run URL. |
 -----
 
@@ -155,6 +165,7 @@ While this workshop focuses on rapid development and functionality, moving to a 
 *   [ ] **Least Privilege Service Accounts:** Create a dedicated Service Account for the Cloud Run service with the minimum required permissions (e.g., `Cloud SQL Client`, `Pub/Sub Publisher`, `Vertex AI User`) instead of using the default Compute Engine service account.
 *   [ ] **API Management (Apigee):** (Optional) Deploy Apigee or API Gateway in front of your backend services for advanced rate limiting, quota management, analytics, and developer portal capabilities.
 *   [ ] **Secret Management:** Store sensitive configuration (DB passwords, API keys) in **Secret Manager** and mount them as environment variables in Cloud Run, rather than hardcoding them.
+*   [ ] **Force SSL and disable external IP:** In the connection of the database make sure you force and disable external IP.
 
 -----
 
