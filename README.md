@@ -63,7 +63,7 @@ Before you begin, you need to authenticate with Google Cloud. Run the following 
     *Replace `[YOUR_PROJECT_ID]` with your actual Google Cloud project ID.*
 
 
-4.  **Download alloydb proxy:**
+4.  **Download alloydb proxy: (linux)**
     ```bash
         wget https://storage.googleapis.com/alloydb-auth-proxy/v1.13.6/alloydb-auth-proxy.linux.amd64 -O alloydb-auth-proxy
     ```
@@ -137,7 +137,7 @@ This is the core value-add module, integrating the Gemini API for advanced NLP.
 | **4.2** | **AI-Powered Summarization** | Use the Gemini API to analyze comments and identify pain points. | **Prompt:** `Create a new endpoint: '/api/items/:item_id/top-complaints'. This endpoint must fetch all comments for the given item ID from the AlloyDB 'ratings' table. Then, it must use the Gemini API to analyze these comments and return a summary of the top 3 most frequent complaints or recurring issues found in the text. use @google/genai package with this constructor: new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY}); ` |
 | **4.3** | **Test AI Endpoint** | Test the new endpoint and observe the AI-generated insights. | **Action:** Run a `curl` command against the new AI endpoint and analyze the output, noting the speed of insight generation. |
 | **4.4** | **Test ALL Endpoints** | Creation of a global test script | **Prompt:** create a script that call curl with to test all the endpoints. |
-| **4.5** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:**generate a open api interface for all the endpoints |
+| **4.5** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:** Generate a open api interface for all the endpoints |
 | **4.6** | **Generate Open API interface (optional)** | Creation of a global test script | **Prompt:** in the ratings api methods put and post, add a functionality to push a message to a pub/sub topic called "negative-ratings", if a comment is negative, in the payload include a suggested a reply to the user. use @google/genai package use @google/genai package with this constructor: new GoogleGenAI({vertexai: true, apiKey:process.env.GOOGLE_API_KEY}); |
 -----
 
@@ -151,8 +151,8 @@ This module focuses on preparing the application for deployment and deploying it
 | **5.2** | **Build and Push Docker Image** | Build the Docker image and push it to Google Container Registry (GCR) or Artifact Registry. | **Action:** `gcloud builds submit --tag gcr.io/[PROJECT-ID]/alloydb-api` |
 | **5.3** | **Deploy to Cloud Run** | Deploy the containerized application to Google Cloud Run. | **Action:** `gcloud run deploy alloydb-api --image gcr.io/[PROJECT-ID]/alloydb-api --platform managed --region [REGION] --allow-unauthenticated` |
 | **5.4** | **Configure Cloud Run to AlloyDB** | Connect the Cloud Run service to AlloyDB instance via a Serverless VPC Access connector. | **Action:** Configure the AlloyDB connection string with the private IP and ensure Serverless VPC Access is set up for Cloud Run.  Check the SSL true in the connection to the AlloyDB |
-
 | **5.5** | **Test Deployed API** | Verify the deployed API endpoints are working correctly. | **Action:** Use `curl` or the `test_all_apis.sh` script against the Cloud Run URL. |
+
 -----
 
 ### **Production Readiness & Security Best Practices** 🛡️
