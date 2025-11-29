@@ -1,5 +1,5 @@
 -- Grant ownership of the database 'items' to user 'items'
-ALTER DATABASE items OWNER TO items;
+--ALTER DATABASE items OWNER TO items;
 
 -- Grant all privileges on the database 'items' to user 'items'
 GRANT ALL PRIVILEGES ON DATABASE items TO items;
