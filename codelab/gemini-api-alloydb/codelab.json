@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2025-12-02T20:12:39Z",
+  "id": "gemini-api-alloydb",
+  "duration": 91,
+  "title": "🛠️ \nProduct Feedback Accelerator Workshop",
+  "summary": "This workshop will guide you through building a high-performance, AI-powered system designed to rapidly analyze and respond to user feedback for products. You’ll learn how to leverage Google Cloud services and the Gemini API/Vertex AI to transform raw customer ratings and comments into actionable insights, significantly improving customer response times and overall user satisfaction.",
+  "source": "./codelab.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "gemini-cli",
+    "vibecoding",
+    "vertexai",
+    "alloydb"
+  ],
+  "tags": [
+    "web"
+  ],
+  "url": "gemini-api-alloydb"
+}
