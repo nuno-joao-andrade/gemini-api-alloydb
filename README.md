@@ -4,7 +4,7 @@ id: gemini-api-alloydb
 categories: gemini-cli, vibe coding, vertex ai, alloydb
 environments: Web
 status: Published
-feedback link: [Your Feedback URL]
+feedback link: [Please feedback any issues](https://github.com/nuno-joao-andrade/gemini-api-alloydb/issues)
 analytics account: [Your Google Analytics ID (optional)]
 
 # 🛠️ **Product Feedback Accelerator Workshop**
@@ -12,6 +12,12 @@ analytics account: [Your Google Analytics ID (optional)]
 ## Introduction
 Duration: 0:01:00
 This workshop will guide you through building a high-performance, AI-powered system designed to **rapidly analyze and respond to user feedback** for products. You'll learn how to leverage Google Cloud services and the Gemini API/Vertex AI to transform raw customer ratings and comments into actionable insights, significantly improving customer response times and overall user satisfaction.
+
+### codelabs ###
+https://nuno-joao-andrade.github.io/gemini-api-alloydb/codelab/gemini-api-alloydb/
+
+### github repo ###
+https://github.com/nuno-joao-andrade/gemini-api-alloydb/
 
 ### **What You Will Build**
 
@@ -94,7 +100,7 @@ This module ensures all necessary tools and credentials are in place before star
 | **0.2** | **AlloyDB Proxy** | Download and set up the AlloyDB Auth Proxy for local connectivity. | [AlloyDB Proxy Docs](https://docs.cloud.google.com/alloydb/docs/auth-proxy/connect) |
 | **0.3** | **Gemini API Key / Vertex AI** | Generate and obtain your Gemini API key (or Vertex AI credentials). | [Vertex AI Credentials Docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=expressmode) [API Reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/sdks/overview#googlegenaisdk_quickstart-nodejs_genai_sdk) |
 | **0.4** | **Set Environment Variables** | Define required credentials and project settings in your terminal session. | `export GOOGLE_API_KEY=...` <br> `export GOOGLE_GENAI_USE_VERTEXAI="true"` <br> `export GOOGLE_CLOUD_PROJECT="..."` |
-| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | Go to the [https://console.cloud.google.com/] (https://console.cloud.google.com/), search for alloydb and create the instance cluster. <br/><br/> **1) Instance Specs** <br/> **Cluster Password:** `!devfest-alloy123` <br/> **VPC :** Use the default, <br/> **Allow external IP**: Without any network allowed. (In the dev environment only, to allow connection via proxy to test the code.) <br/> **Check SSL configuration (only important for step 5)** <br/> <br/> **2) Create Database + User:** Database Name: `items`; Database User: `items` / `!items123` and execute the grant_privileges.sql in the AlloyDB studio with postgres user, <br/>  |
+| **0.5** | **Create AlloyDB Instance** | Provision the instance, create the database (`items`), and the application user (`items` / `!items123`). | Go to the [https://console.cloud.google.com/] (https://console.cloud.google.com/), search for alloydb and create the instance cluster. <br/><br/> **1) Instance Specs** <br/> **Cluster Password:** create a strong password <br/> **VPC :** Use the default, <br/> **Allow external IP**: Without any network allowed. (In the dev environment only, to allow connection via proxy to test the code.) <br/> **Check SSL configuration (only important for step 5)** <br/> <br/> **2) Create Database + User:** Database Name: `items`; Database User: `items` / **create a strong password** and execute the grant_privileges.sql in the AlloyDB studio with postgres user, <br/>  |
 
 -----
 
@@ -107,9 +113,9 @@ We use the **Gemini-CLI** to instantly generate the SQL schema and realistic syn
 | :--- | :--- | :--- | :--- |
 | **1.1** | **Generate DB Structure (SQL)** | Use the CLI to create the SQL script for all sequences and tables. | **Prompt:** `create a script to create the following elements in alloydb: 1) Sequences: items, orders, order_items, ratings, users. 2) Tables: Items (item_id, item_description, item_value), orders (order_id, create_date, status, user_id), order_items (order_items_id, order_id, item_id, quantity), ratings (rating_id, value, comments, user_id, order_items_id), users (user_id, name, email, status).` |
 | **1.1a** | **Launch AlloyDB Auth Proxy** | Start the Auth Proxy to connect to your AlloyDB instance locally. | **Action:** `./alloydb-auth-proxy -p 5433 INSTANCE_CONNECTION_NAME` (replace with your instance name) |
-| **1.2** | **Execute Schema Script** | Run the generated `setup_alloydb.sql` script on your AlloyDB instance. | **Action:** `psql -h 127.0.0.1 -p 5433 -d items -U items -f setup_alloydb.sql` |
+| **1.2** | **Execute Schema Script** | Run the generated `setup_alloydb.sql` script on your AlloyDB instance. | **Action:** `psql -h 127.0.0.1 -p 5433 -d items -U items -W -f setup_alloydb.sql` |
 | **1.3** | **Generate Synthetic Data** | Generate a massive amount of correlated data, focusing on realistic text for the `comments` column. | **Prompt:** **ADJUST TO THE CAPACITY OF THE INSTANCE CREATED** `generate a populate script to insert correlated sample data for all tables with the following volumes: items - 50k, users - 50k, orders - 500k, order_items - 1M, ratings - 100k. CRUCIALLY, for the ratings 'comments' column, insert meaningful, realistic product review text (e.g., bug reports, feature requests, praise).` |
-| **1.4** | **Execute Data Script** | Run the generated data insertion script to populate the database for testing. | **Action:** Execute the large data insertion script. `psql -h 127.0.0.1 -p 5433 -d items -U items -f populate_alloydb.sql` |
+| **1.4** | **Execute Data Script** | Run the generated data insertion script to populate the database for testing. | **Action:** Execute the large data insertion script. `psql -h 127.0.0.1 -p 5433 -d items -U items -W -f populate_alloydb.sql` |
 
 -----
 

@@ -13,6 +13,12 @@ analytics account: [Your Google Analytics ID (optional)]
 Duration: 0:01:00
 This workshop will guide you through building a high-performance, AI-powered system designed to **rapidly analyze and respond to user feedback** for products. You'll learn how to leverage Google Cloud services and the Gemini API/Vertex AI to transform raw customer ratings and comments into actionable insights, significantly improving customer response times and overall user satisfaction.
 
+### codelabs ###
+https://nuno-joao-andrade.github.io/gemini-api-alloydb/codelab/gemini-api-alloydb/
+
+### github repo ###
+https://github.com/nuno-joao-andrade/gemini-api-alloydb/
+
 ### **What You Will Build**
 
 You will create a comprehensive back-end service that automates the processing of user feedback. The core functions of this API include:
